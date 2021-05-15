@@ -5,7 +5,9 @@ from .serializers import PostSerializer
 from rest_framework import viewsets
 from rest_framework.permissions import BasePermission, SAFE_METHODS, IsAdminUser, DjangoModelPermissionsOrAnonReadOnly, \
     IsAuthenticated
+
 from rest_framework.response import Response
+from rest_framework import filters
 
 
 class PostUserWritePermission(BasePermission):
@@ -18,18 +20,54 @@ class PostUserWritePermission(BasePermission):
         return obj.author == request.user
 
 
-class PostList(viewsets.ModelViewSet):
-    permission_classes =[DjangoModelPermissionsOrAnonReadOnly]
+class PostList(generics.ListAPIView):
+    permission_classes = [IsAuthenticated]
     serializer_class = PostSerializer
 
-    def get_object(self, queryset=None, **kwargs):
-        item = self.kwargs.get('pk')
-        return get_object_or_404(Post, slug=item)
-
-    # Define Custom Queryset
     def get_queryset(self):
-        return Post.objects.all()
+        user = self.request.user
+        return Post.objects.filter(author=user)
 
+
+class PostDetail(generics.ListAPIView):
+
+    serializer_class = PostSerializer
+    def get_queryset(self):
+        slug = self.request.query_params.get('slug', None)
+        return Post.objects.filter(slug=slug)
+
+class PostListDetailfilter(generics.ListAPIView):
+    queryset = Post.objects.all()
+    serializer_class = PostSerializer
+
+    filter_backends = [filters.SearchFilter]
+    search_fields=['^slug']
+
+
+
+
+
+
+
+
+
+
+
+
+
+# class PostList(viewsets.ModelViewSet):
+#     permission_classes =[DjangoModelPermissionsOrAnonReadOnly]
+#     serializer_class = PostSerializer
+#
+#     def get_object(self, queryset=None, **kwargs):
+#         item = self.kwargs.get('pk')
+#         return get_object_or_404(Post, slug=item)
+#
+#     # Define Custom Queryset
+#     def get_queryset(self):
+#         user = self.request.user
+#         return Post.objects.filter(author=user)
+#
 #
 # class PostList(viewsets.ViewSet):
 #     permission_classes = [DjangoModelPermissionsOrAnonReadOnly]
