@@ -4,7 +4,7 @@ from blog.models import Post
 from .serializers import PostSerializer
 from rest_framework import viewsets
 from rest_framework.permissions import BasePermission, SAFE_METHODS, IsAdminUser, DjangoModelPermissionsOrAnonReadOnly, \
-    IsAuthenticated
+    IsAuthenticated,AllowAny
 
 from rest_framework.response import Response
 from rest_framework import filters
@@ -21,12 +21,12 @@ class PostUserWritePermission(BasePermission):
 
 
 class PostList(generics.ListAPIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
     serializer_class = PostSerializer
 
     def get_queryset(self):
         user = self.request.user
-        return Post.objects.filter(author=user)
+        return Post.objects.all()
 
 
 class PostDetail(generics.ListAPIView):

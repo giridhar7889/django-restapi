@@ -12,7 +12,11 @@ class RegisterUserSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         password = validated_data.pop('password', None)
+        username = validated_data.pop('user_name', None)
+        print(password)
+        print(username)
         # as long as the fields are the same, we can just use this
+
         instance = self.Meta.model(**validated_data)
         if password is not None:
             instance.set_password(password)
